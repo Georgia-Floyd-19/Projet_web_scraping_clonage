@@ -1,0 +1,32 @@
+# Django et frameworks web
+*.pyc
+*.pyo
+__pycache__/
+.env
+*.env
+.env.local
+.env.*
+
+# Fichiers générés
+_clones/
+logs/
+*.log
+*.tmp
+
+# Fichiers statiques et de données
+*.log*
+*.tmp*
+
+# Fichiers systèmes d'exploitation
+.DS_Store
+Thumbs.db
+
+# Configuration IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Commits récents
+.git/
+

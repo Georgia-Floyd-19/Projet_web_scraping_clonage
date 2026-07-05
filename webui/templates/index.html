@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Cloner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <div class="background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+
+        <div class="header">
+            <div class="logo">Web Cloner</div>
+            <p class="subtitle">Clonez n'importe quel site web en local avec tous ses assets</p>
+        </div>
+
+        <form id="clone-form" autocomplete="off">
+            <div class="glass">
+
+                <div class="input-group">
+                    <span class="input-icon">🔗</span>
+                    <input
+                        type="text"
+                        id="url-input"
+                        class="url-input"
+                        placeholder="https://www.monsite.com"
+                        autofocus
+                    >
+                </div>
+
+                <div id="options-toggle" class="options-toggle">
+                    <span class="toggle-arrow">▶</span>
+                    Options avancées
+                </div>
+
+                <div id="options-panel" class="options-panel">
+
+                    <div class="option-grid">
+                        <div class="option-checkbox active" id="opt-interactions-box">
+                            <span class="check"></span>
+                            <span>Interactions auto</span>
+                            <input type="checkbox" id="opt-interactions" checked>
+                        </div>
+                        <div class="option-checkbox active" id="opt-save-api-box">
+                            <span class="check"></span>
+                            <span>Sauvegarder API</span>
+                            <input type="checkbox" id="opt-save-api" checked>
+                        </div>
+                    </div>
+
+                    <div class="option-row">
+                        <label>Pages max :</label>
+                        <input type="number" id="opt-max-pages" class="number-input" value="10" min="1" max="200">
+                        <span style="font-size: 12px; color: var(--text-dim);">(1-200)</span>
+                    </div>
+
+<div class="summarize-toggle" id="summarize-toggle">
+                            <div class="toggle-switch active" id="summarize-switch">
+                                <div class="knob"></div>
+                            </div>
+                            <span>Résumé de la page</span>
+                            <input type="checkbox" id="opt-summarize" checked hidden>
+                        </div>
+
+                    <div class="option-row">
+                        <label>Stratégie d'attente :</label>
+                        <select id="opt-wait-strategy" class="select-input">
+                            <option value="networkidle">networkidle (recommandé)</option>
+                            <option value="domcontentloaded">domcontentloaded (rapide)</option>
+                            <option value="load">load (complet)</option>
+                        </select>
+                    </div>
+
+                    <div class="option-row">
+                        <label>Scroll progressif :</label>
+                        <input type="number" id="opt-scroll-steps" class="number-input" value="5" min="0" max="50">
+                        <span style="font-size: 12px; color: var(--text-dim);">(étapes)</span>
+                    </div>
+
+                    <div class="option-row">
+                        <label>Timeout page :</label>
+                        <input type="number" id="opt-page-timeout" class="number-input" value="60" min="10" max="300">
+                        <span style="font-size: 12px; color: var(--text-dim);">secondes</span>
+                    </div>
+
+                    <div class="option-grid" style="margin-top: 8px;">
+                        <div class="option-checkbox active" id="opt-stealth-box">
+                            <span class="check"></span>
+                            <span>Mode stealth anti-bot</span>
+                            <input type="checkbox" id="opt-stealth" checked>
+                        </div>
+                    </div>
+
+                    <div class="option-row">
+                        <label>Mode clonage :</label>
+                        <select id="opt-clone-mode" class="select-input">
+                            <option value="auto">Auto (détection) — recommandé</option>
+                            <option value="nuxt-perfect">Nuxt Perfect (animations+polices)</option>
+                            <option value="snapshot">Snapshot (DOM figé)</option>
+                            <option value="screenshot">Screenshot (capture canvas)</option>
+                            <option value="hybrid">Hybride (rejeu API)</option>
+                            <option value="static">Statique (HTML + assets)</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button type="submit" id="submit-btn" class="btn-primary">
+                    <div class="btn-shimmer"></div>
+                    <div class="btn-content">
+                        <span class="btn-icon">🚀</span>
+                        <span>Lancer le clonage</span>
+                    </div>
+                </button>
+
+            </div>
+        </form>
+
+        <div id="notification" class="notification">✓ Chemin copié</div>
+
+        <div id="error-message" class="error-message">
+            <strong>Erreur :</strong> <span id="error-text"></span>
+        </div>
+
+        <div id="progress-section" class="glass">
+            <div class="progress-header">
+                <span class="progress-title">🔄 Clonage en cours...</span>
+                <span class="progress-percent" id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <div class="step-indicator">
+                <span class="step-dot"></span>
+                <span id="step-text">Initialisation...</span>
+            </div>
+            <div class="logs-container" id="logs"></div>
+        </div>
+
+        <div id="result-section" class="glass">
+            <div class="result-header">
+                <div class="result-icon">✅</div>
+                <h2 class="result-title">Clonage terminé !</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card purple">
+                    <span class="stat-value" id="result-url" style="font-size: 14px; word-break: break-all;"></span>
+                    <span class="stat-label">URL clonée</span>
+                </div>
+                <div class="stat-card cyan">
+                    <span class="stat-value" id="result-dir" style="font-size: 13px; word-break: break-all;"></span>
+                    <span class="stat-label">Dossier</span>
+                </div>
+                <div class="stat-card green">
+                    <span class="stat-value" id="result-time">0s</span>
+                    <span class="stat-label">Durée</span>
+                </div>
+                <div class="stat-card amber">
+                    <span class="stat-value" id="result-assets">0</span>
+                    <span class="stat-label">Ressources</span>
+                </div>
+                <div class="stat-card purple">
+                    <span class="stat-value" id="result-rewrites">0</span>
+                    <span class="stat-label">Pages clonées</span>
+                </div>
+                <div class="stat-card green">
+                    <span class="stat-value" id="result-size">0 o</span>
+                    <span class="stat-label">Taille totale</span>
+                </div>
+                <div class="stat-card cyan">
+                    <span class="stat-value" id="result-api-calls">0</span>
+                    <span class="stat-label">API capturées</span>
+                </div>
+                <div class="stat-card amber">
+                    <span class="stat-value" id="result-framework">-</span>
+                    <span class="stat-label">Framework</span>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn-secondary" id="open-dir-btn">
+                    📂 Ouvrir le dossier
+                </button>
+                <button class="btn-secondary" id="open-page-btn">
+                    🌐 Voir la page clonée
+                </button>
+            </div>
+
+            <div id="groq-summary" class="groq-summary">
+                <div class="groq-header">Résumé de la page</div>
+                <div class="groq-content" id="groq-content"></div>
+            </div>
+
+            <button class="btn-reset" id="reset-btn">
+                🏠 Cloner un autre site
+            </button>
+        </div>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
