@@ -2,6 +2,7 @@
 import argparse
 import asyncio
 import os
+import platform
 import sys
 import time
 from pathlib import Path
@@ -130,13 +131,14 @@ async def main():
         with spinner_progress:
             task = spinner_progress.add_task("[cyan]Clonage en cours...", total=None)
 
+            browser_channel = "chromium" if platform.system() == "Linux" else "msedge"
             result = await asyncio.to_thread(
                 clone_site_sync,
                 start_url=url,
                 output_folder=output_dir,
                 max_pages=args.max_pages,
                 headless=not args.no_headless,
-                channel="msedge",
+                channel=browser_channel,
                 enable_interactions=not args.no_interactions,
                 save_api_responses=not args.no_api,
                 request_delay_s=args.request_delay,

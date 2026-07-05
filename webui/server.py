@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import platform
 import sys
 import time
 from pathlib import Path
@@ -22,10 +23,19 @@ templates_dir = os.path.join(os.path.dirname(__file__), "templates")
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 clones_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "_clones")
 
+def get_default_browser_channel() -> str:
+    """Retourne 'chromium' sur Linux (Render), 'msedge' sur Windows."""
+    return "chromium" if platform.system() == "Linux" else "msedge"
+
 app = FastAPI(title="Web Cloner")
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 templates = Jinja2Templates(directory=templates_dir)
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -97,7 +107,7 @@ async def websocket_endpoint(websocket: WebSocket):
             output_folder=output_dir,
             max_pages=options.get("max_pages", 10),
             headless=True,
-            channel="msedge",
+            channel=get_default_browser_channel(),
             enable_interactions=options.get("enable_interactions", True),
             save_api_responses=options.get("save_api", True),
             request_delay_s=options.get("request_delay", 0.5),
@@ -169,8 +179,10 @@ async def send_json(websocket: WebSocket, data: dict):
 async def run_server(port: int = 8501, open_browser: bool = True):
     import uvicorn
     import webbrowser
-    if open_browser:
+    port = int(os.environ.get("PORT", port))
+    host = "0.0.0.0" if platform.system() == "Linux" else "127.0.0.1"
+    if open_browser and host != "0.0.0.0":
         webbrowser.open(f"http://localhost:{port}")
-    config = uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning")
+    config = uvicorn.Config(app, host=host, port=port, log_level="warning")
     server = uvicorn.Server(config)
     await server.serve()

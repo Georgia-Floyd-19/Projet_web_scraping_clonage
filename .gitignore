@@ -1,32 +1,44 @@
-# Django et frameworks web
-*.pyc
-*.pyo
+# Python
+*.py[cod]
 __pycache__/
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# Environnement
 .env
-*.env
 .env.local
 .env.*
+!.env.example
 
-# Fichiers générés
+# Projet
 _clones/
 logs/
 *.log
 *.tmp
 
-# Fichiers statiques et de données
-*.log*
-*.tmp*
-
-# Fichiers systèmes d'exploitation
+# Système
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Configuration IDE
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-workspace
 
-# Commits récents
-.git/
+# Tests & coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.coverage.*
 
+# Playwright
+.ms-playwright/

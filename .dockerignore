@@ -1,0 +1,27 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv
+venv/
+.env
+.env.*
+!.env.example
+.git/
+.gitignore
+.gitattributes
+*.md
+!README.md
+!ARCHITECTURE.md
+!CONTRIBUTING.md
+!CHANGELOG.md
+__pycache__/
+_clones/
+logs/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+Cahier des charges web_cloner.pdf
+.DS_Store

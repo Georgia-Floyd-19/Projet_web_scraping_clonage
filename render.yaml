@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: web-cloner
+    env: docker
+    repo: https://github.com/anomalyco/web_cloner
+    branch: main
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TZ
+        value: Europe/Paris
