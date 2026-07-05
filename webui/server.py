@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
@@ -30,7 +31,12 @@ def get_default_browser_channel() -> str:
 
 app = FastAPI(title="Web Cloner")
 
-templates = Jinja2Templates(directory=os.fspath(templates_dir))
+jinja_env = Environment(
+    loader=FileSystemLoader(os.fspath(templates_dir)),
+    autoescape=select_autoescape(["html", "xml"]),
+    cache_size=0,
+)
+templates = Jinja2Templates(env=jinja_env)
 app.mount("/static", StaticFiles(directory=os.fspath(static_dir)), name="static")
 
 
