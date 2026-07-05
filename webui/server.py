@@ -13,15 +13,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
 
 from core.crawler import clone_site_async
 from core.utils import human_size
 from utils.groq import GroqSummarizer
 
-templates_dir = os.path.join(os.path.dirname(__file__), "templates")
-static_dir = os.path.join(os.path.dirname(__file__), "static")
-clones_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "_clones")
+templates_dir = BASE_DIR / "webui" / "templates"
+static_dir = BASE_DIR / "webui" / "static"
+clones_dir = BASE_DIR / "_clones"
 
 def get_default_browser_channel() -> str:
     """Retourne 'chromium' sur Linux (Render), 'msedge' sur Windows."""
@@ -29,8 +30,18 @@ def get_default_browser_channel() -> str:
 
 app = FastAPI(title="Web Cloner")
 
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
-templates = Jinja2Templates(directory=templates_dir)
+templates = Jinja2Templates(directory=str(templates_dir))
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+
+@app.on_event("startup")
+async def startup():
+    if not templates_dir.exists():
+        raise RuntimeError(f"Dossier templates introuvable : {templates_dir}")
+    if not (templates_dir / "index.html").exists():
+        raise RuntimeError(f"index.html introuvable dans {templates_dir}")
+    if not static_dir.exists():
+        raise RuntimeError(f"Dossier static introuvable : {static_dir}")
 
 
 @app.get("/health")
@@ -61,9 +72,8 @@ async def preview_clone(clone_name: str):
     return HTMLResponse("Aucune page HTML trouvée dans le clone", status_code=404)
 
 
-clones_abs = os.path.abspath(clones_dir)
-os.makedirs(clones_abs, exist_ok=True)
-app.mount("/_clones", StaticFiles(directory=clones_abs), name="clones")
+clones_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/_clones", StaticFiles(directory=str(clones_dir)), name="clones")
 
 
 @app.websocket("/ws")
