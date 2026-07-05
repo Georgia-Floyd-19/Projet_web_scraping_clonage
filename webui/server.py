@@ -30,18 +30,26 @@ def get_default_browser_channel() -> str:
 
 app = FastAPI(title="Web Cloner")
 
-templates = Jinja2Templates(directory=str(templates_dir))
-app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+templates = Jinja2Templates(directory=os.fspath(templates_dir))
+app.mount("/static", StaticFiles(directory=os.fspath(static_dir)), name="static")
 
 
 @app.on_event("startup")
 async def startup():
+    print(f"=== WEB CLONER STARTUP ===")
+    print(f"BASE_DIR = {BASE_DIR}")
+    print(f"templates_dir = {templates_dir}")
+    print(f"templates_dir.exists() = {templates_dir.exists()}")
+    print(f"static_dir = {static_dir}")
+    print(f"static_dir.exists() = {static_dir.exists()}")
+    print(f"WebUI files: {list(BASE_DIR.rglob('index.html'))}")
     if not templates_dir.exists():
         raise RuntimeError(f"Dossier templates introuvable : {templates_dir}")
     if not (templates_dir / "index.html").exists():
         raise RuntimeError(f"index.html introuvable dans {templates_dir}")
     if not static_dir.exists():
         raise RuntimeError(f"Dossier static introuvable : {static_dir}")
+    print("=== WEB CLONER READY ===")
 
 
 @app.get("/health")
