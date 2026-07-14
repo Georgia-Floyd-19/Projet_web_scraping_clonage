@@ -29,7 +29,7 @@ const DOM = {
 let cloneName = null;
 let ws = null;
 let isCloning = false;
-const IS_RENDER = document.body.dataset.isRender === 'true';
+const IS_RENDER = !['localhost', '127.0.0.1'].includes(window.location.hostname);
 
 function getOptions() {
     return {

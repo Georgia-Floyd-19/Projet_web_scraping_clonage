@@ -26,9 +26,6 @@ templates_dir = BASE_DIR / "webui" / "templates"
 static_dir = BASE_DIR / "webui" / "static"
 clones_dir = BASE_DIR / "_clones"
 
-IS_RENDER = os.environ.get("RENDER") == "true" or (
-    platform.system() == "Linux" and "PORT" in os.environ
-)
 
 def get_default_browser_channel() -> str:
     """Retourne 'chromium' sur Linux (Render), 'msedge' sur Windows."""
@@ -70,7 +67,7 @@ async def health():
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     template = jinja_env.get_template("index.html")
-    return HTMLResponse(template.render(request=request, is_render=IS_RENDER))
+    return HTMLResponse(template.render(request=request))
 
 
 @app.get("/preview/{clone_name:path}")
