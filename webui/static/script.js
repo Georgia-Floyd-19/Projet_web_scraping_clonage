@@ -33,7 +33,7 @@ const IS_RENDER = document.body.dataset.isRender === 'true';
 
 function getOptions() {
     return {
-        max_pages: parseInt(document.getElementById('opt-max-pages').value, 10) || 10,
+        max_pages: parseInt(document.getElementById('opt-max-pages').value, 10) || 1,
         enable_interactions: document.getElementById('opt-interactions').checked,
         save_api: document.getElementById('opt-save-api').checked,
         summarize: document.getElementById('opt-summarize').checked,
