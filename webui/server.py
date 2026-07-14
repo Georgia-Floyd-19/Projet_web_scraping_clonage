@@ -1,14 +1,16 @@
 import asyncio
+import io
 import json
 import os
 import platform
 import sys
 import time
+import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -23,6 +25,10 @@ from utils.groq import GroqSummarizer
 templates_dir = BASE_DIR / "webui" / "templates"
 static_dir = BASE_DIR / "webui" / "static"
 clones_dir = BASE_DIR / "_clones"
+
+IS_RENDER = os.environ.get("RENDER") == "true" or (
+    platform.system() == "Linux" and "PORT" in os.environ
+)
 
 def get_default_browser_channel() -> str:
     """Retourne 'chromium' sur Linux (Render), 'msedge' sur Windows."""
@@ -64,7 +70,7 @@ async def health():
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     template = jinja_env.get_template("index.html")
-    return HTMLResponse(template.render(request=request))
+    return HTMLResponse(template.render(request=request, is_render=IS_RENDER))
 
 
 @app.get("/preview/{clone_name:path}")
@@ -83,6 +89,27 @@ async def preview_clone(clone_name: str):
         return RedirectResponse(f"/_clones/{clone_name}/{rel}")
 
     return HTMLResponse("Aucune page HTML trouvée dans le clone", status_code=404)
+
+
+@app.get("/download/{clone_name:path}")
+async def download_clone(clone_name: str):
+    clone_path = Path(clones_dir) / clone_name
+    if not clone_path.exists() or not clone_path.is_dir():
+        return HTMLResponse("Clone introuvable", status_code=404)
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for file_path in sorted(clone_path.rglob("*")):
+            if file_path.is_file():
+                arcname = str(file_path.relative_to(clone_path))
+                zf.write(file_path, arcname)
+    buf.seek(0)
+
+    return StreamingResponse(
+        buf,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename={clone_name}.zip"},
+    )
 
 
 clones_dir.mkdir(parents=True, exist_ok=True)

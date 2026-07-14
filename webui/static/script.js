@@ -29,6 +29,7 @@ const DOM = {
 let cloneName = null;
 let ws = null;
 let isCloning = false;
+const IS_RENDER = document.body.dataset.isRender === 'true';
 
 function getOptions() {
     return {
@@ -190,6 +191,10 @@ function showResult(data) {
         DOM.groqSummary.classList.add('active');
     }
 
+    DOM.openDirBtn.textContent = IS_RENDER
+        ? '📥 Télécharger le ZIP'
+        : '📂 Ouvrir le dossier';
+
     DOM.resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -244,13 +249,22 @@ DOM.openPageBtn.addEventListener('click', () => {
 });
 
 DOM.openDirBtn.addEventListener('click', () => {
-    const dir = DOM.resultDir.textContent;
-    if (dir) {
-        navigator.clipboard.writeText(dir).then(() => {
-            showNotification('Chemin copié dans le presse-papier !');
-        }).catch(() => {
-            showNotification(`Dossier : ${dir}`, 'info');
-        });
+    if (!cloneName) {
+        showNotification('Aucun clone à télécharger', 'error');
+        return;
+    }
+    if (IS_RENDER) {
+        window.location.href = `/download/${cloneName}`;
+        showNotification('Téléchargement du ZIP...', 'info');
+    } else {
+        const dir = DOM.resultDir.textContent;
+        if (dir) {
+            navigator.clipboard.writeText(dir).then(() => {
+                showNotification('Chemin copié dans le presse-papier !');
+            }).catch(() => {
+                showNotification(`Dossier : ${dir}`, 'info');
+            });
+        }
     }
 });
 
